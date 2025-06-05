@@ -1,68 +1,59 @@
+# 📦 Install required packages (Run once in terminal or via pip)
+# pip install qrcode opencv-python pyzbar pillow
+
+# 📁 Import necessary modules
 import qrcode
 import cv2
 from pyzbar.pyzbar import decode
-from pathlib import Path
-from colorama import Fore, Style, init
+from PIL import Image
+import os
 
-init(autoreset=True)  # For automatic color reset in terminal
-
-
+# 🧠 QR Code Generator Function
 def generate_qr(data: str, filename: str = "qrcode.png"):
-    qr = qrcode.QRCode(
-        version=1,
-        box_size=10,
-        border=4
-    )
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(data)
     qr.make(fit=True)
 
     img = qr.make_image(fill="black", back_color="white")
-    save_path = Path.cwd() / filename
-    img.save(save_path)
+    img.save(filename)
+    print(f"[✅] QR Code generated and saved as '{filename}'.")
 
-    print(f"{Fore.GREEN}[✅] QR Code successfully saved at: {save_path}")
+    # Display using PIL
+    img.show()
 
-
+# 🔍 QR Code Decoder Function
 def decode_qr(image_path: str):
-    try:
-        img = cv2.imread(image_path)
-        decoded_objects = decode(img)
+    if not os.path.exists(image_path):
+        print(f"[❌] File '{image_path}' not found.")
+        return
 
-        if not decoded_objects:
-            print(f"{Fore.RED}[❌] No QR code found in the image.")
-            return
+    decoded_objects = decode(img)
 
-        print(f"{Fore.YELLOW}📦 Decoded Results:")
-        for obj in decoded_objects:
-            print(f"   {Fore.CYAN}-> {obj.data.decode('utf-8')}")
-    except Exception as e:
-        print(f"{Fore.RED}[⚠️] Error reading image: {e}")
+    if not decoded_objects:
+        print("[❌] No QR code found.")
+        return
 
+    for obj in decoded_objects:
+        print(f"[🔍] Decoded Data: {obj.data.decode('utf-8')}")
 
+# --- 👇 User Interface ---
 def main():
-    print(f"""{Fore.MAGENTA}
-    ======================================
-        🔳 QR Code Generator & Decoder
-    ======================================
-    """)
+    print("==== QR Code Generator & Decoder ====")
+    print("Select an option: [g] Generate QR | [d] Decode QR")
 
-    choice = input(f"{Fore.BLUE}Do you want to [G]enerate or [D]ecode a QR code? ").strip().lower()
+    choice = input("Enter choice (g/d): ").strip().lower()
 
     if choice == 'g':
-        text = input(f"{Fore.YELLOW}📥 Enter text or URL to generate QR code: ")
-        filename = input(f"{Fore.YELLOW}💾 Enter filename to save (default: qrcode.png): ").strip()
-        generate_qr(text, filename or "qrcode.png")
+        text = input("Enter text or URL to generate QR code: ")
+        filename = input("Enter filename (e.g., mycode.png): ").strip() or "qrcode.png"
+        generate_qr(text, filename)
 
     elif choice == 'd':
-        image_path = input(f"{Fore.YELLOW}🖼️ Enter path to QR code image: ").strip()
-        decode_qr(image_path)
+        filename = input("Enter path to QR code image (e.g., qrcode.png): ").strip()
+        decode_qr(filename)
 
     else:
-        print(f"{Fore.RED}[⚠️] Invalid choice. Please select 'g' or 'd'.")
+        print("[⚠️] Invalid choice. Use 'g' or 'd'.")
 
 if __name__ == "__main__":
     main()
-
-
-
-    

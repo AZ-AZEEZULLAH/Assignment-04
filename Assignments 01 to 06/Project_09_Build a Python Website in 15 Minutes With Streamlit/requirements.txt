@@ -1,0 +1,4 @@
+streamlit
+Pillow
+requests
+# If you want to use the image upload feature, you may need to install additional libraries
